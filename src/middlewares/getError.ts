@@ -6,7 +6,7 @@ export default async function getError(error:any,req:Request,res:Response,next:N
         return res.status(404).send(error.message)
     }
     if(error.code === 'invalid') return res.status(422).send(error.message)
-    
+    if(error.code === 'ExistCard') return res.status(401).send(error.message)
     console.log(error)
     return res.status(500).send(error)
 }
