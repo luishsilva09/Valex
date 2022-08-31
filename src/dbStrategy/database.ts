@@ -4,5 +4,10 @@ dotenv.config();
 
 const { Pool } = pg;
 export const connection = new Pool({
-  connectionString: process.env.DATABASE_URL,
+  user:'luishenrique',
+  password:'3301',
+  host:'localhost',
+  port:5432,
+  database:'valex' 
 });
+
