@@ -1,4 +1,3 @@
-
 import joi from 'joi';
 
 const cardTypeSchema = joi.object({
