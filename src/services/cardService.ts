@@ -24,7 +24,7 @@ function holderName(fullName: string){
 }
 
 
-export async function insertcard(cardData: { employeeId:number, password: string, type: cardRepository.TransactionTypes}){
+export async function insertcard(cardData: { employeeId:number, type: cardRepository.TransactionTypes}){
     const employeeData = await findEmployee(cardData.employeeId)
     const existCard = await cardRepository.findByTypeAndEmployeeId(cardData.type,cardData.employeeId)
 //validar se o usuario existe e validar se já possui um cartão do mesmo tipo
@@ -72,5 +72,9 @@ export  async function activeCard(cardData:{employeeId:number,cardId:number,secu
     
     return {cardNumber: card.number, password:cardPin}
 
+
+}
+
+export async function viewCards(){
 
 }

@@ -8,13 +8,13 @@ export async function insertCard(req:Request,res:Response){
     const data:{employeeId:number, password:string, type:TransactionTypes} = req.body;
     const cardData = await cardService.insertcard(data)
     
-    return res.status(201).send(`Cartão criado com sucesso dados: Numero: ${cardData.number} codigo de segurança: ${cardData.securityCode}`);
+    return res.status(201).json(cardData);
 }
 
 export async function activeCard(req:Request,res:Response) {
     const cardData:{employeeId:number,cardId:number,securityCode:string} = req.body
     const activeData = await cardService.activeCard(cardData)
-    res.status(200).send(`Cartão ativado com sucesso: Catão: ${activeData.cardNumber}, Senha: ${activeData.password}`)
+    res.status(200).json(activeData)
 }
 
 export async function viewCards(req:Request,res:Response){
