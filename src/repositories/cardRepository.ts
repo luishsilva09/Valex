@@ -67,6 +67,11 @@ export async function findByCardDetails(
   return result.rows[0];
 }
 
+export async function findAllCardsEmployee(employeeId:number){
+  const result = await connection.query(`SELECT * FROM cards WHERE cards."employeeId" = $1`,[employeeId])
+  return result.rows
+}
+
 export async function insert(cardData: CardInsertData) {
   const {
     employeeId,

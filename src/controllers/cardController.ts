@@ -18,7 +18,9 @@ export async function activeCard(req:Request,res:Response) {
 }
 
 export async function viewCards(req:Request,res:Response){
-    res.send('ver todos cartoes')
+    const searchData:{employeeId:number,passwords:string[]} = req.body 
+    const result = await cardService.viewCards(searchData)
+    res.status(200).json(result)
 }
 
 export async function viewBalenceTransactions(req:Request,res:Response){
@@ -26,9 +28,6 @@ export async function viewBalenceTransactions(req:Request,res:Response){
 }
 
 export async function blockedCard(req:Request,res:Response){
-    res.send('bloquear')
-}
-
-export async function unlockedCard(req:Request,res:Response){
-    res.send('desbloquear')
+    const result = await cardService.blockedCard(req.body,req.params.block)
+    res.status(200).json(result)
 }

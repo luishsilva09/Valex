@@ -23,6 +23,15 @@ function holderName(fullName: string){
 
 }
 
+async function validCard(cardId:number,employeeId:number){
+    const card = await cardRepository.findById(cardId);
+
+    if(!card)throw {code: 'NotFound', message:'Dados incorretos'};
+    if(card.employeeId != employeeId) throw {code: 'NotFound', message:'Dados incorretos'};
+    if(card.expirationDate === dayjs().format('MM/YY')) throw { code:'Conflict', message:'Cartão vencido, verifique os dados'};
+
+    return card
+}
 
 export async function insertcard(cardData: { employeeId:number, type: cardRepository.TransactionTypes}){
     const employeeData = await findEmployee(cardData.employeeId)
@@ -54,13 +63,11 @@ export async function insertcard(cardData: { employeeId:number, type: cardReposi
 }
 
 export  async function activeCard(cardData:{employeeId:number,cardId:number,securityCode:string}) {
-    const card = await cardRepository.findById(cardData.cardId);
+    const validCardData = await validCard(cardData.cardId,cardData.employeeId)
 
-    if(!card)throw {code: 'NotFound', message:'Dados incorretos'};
-    if(card.employeeId != cardData.employeeId || !card) throw {code: 'NotFound', message:'Dados incorretos'};
-    if(card.password !== null) throw {code: 'ReadyActive', message:'Cartão já ativado'};
-    if(card.expirationDate === dayjs().format('MM/YY')) throw { code:'Conflict', message:'Cartão vencido, verifique os dados'};
-    const decryptSecurityCode = cryptr.decrypt(card.securityCode);
+    if(validCardData.password !== null) throw {code: 'ReadyActive', message:'Cartão já ativado'};
+
+    const decryptSecurityCode = cryptr.decrypt(validCardData.securityCode);
    
     if(cardData.securityCode != decryptSecurityCode) throw {code: 'Conflict', message:'Incoerencia dos dados'};
 
@@ -70,11 +77,49 @@ export  async function activeCard(cardData:{employeeId:number,cardId:number,secu
 
     await cardRepository.update(cardData.cardId,{password:encryptPin})
     
-    return {cardNumber: card.number, password:cardPin}
+    return {cardNumber: validCardData.number, password:cardPin}
 
 
 }
 
-export async function viewCards(){
+export async function viewCards(searchData:{employeeId:number,passwords:string[]}){
 
+    const data = await cardRepository.findAllCardsEmployee(searchData.employeeId)
+    const passwords = data.filter(x => x.password)
+    
+
+    return passwords
+}
+
+export async function viewBalenceTransactions(){
+
+}
+
+export async function blockedCard(cardData:{employeeId:number,cardId:number,cardPassword:string},block:string){
+    const validCardData = await validCard(cardData.cardId,cardData.employeeId)
+
+    if(!validCardData.password) throw {code: 'Conflict', message:'Cartão não ativado'};
+   
+    const decryptPassword = cryptr.decrypt(validCardData.password);
+    
+    if(decryptPassword !== cardData.cardPassword) throw { code:'Conflict', message:'Senha incorreta'};
+
+    const result = {
+        cardNumber: validCardData.number,
+        name: validCardData.cardholderName
+    }
+
+    if(block === 'true'){
+        if(validCardData.isBlocked === true) throw { code:'Conflict', message:'Cartão já bloqueado'};
+        await cardRepository.update(cardData.cardId,{isBlocked:true})
+        return {...result, isBlocked:true}
+    }
+    if(block === 'false'){
+        if(validCardData.isBlocked === false) throw { code:'Conflict', message:'Cartão já desbloqueado'};
+        await cardRepository.update(cardData.cardId,{isBlocked:false})
+        return {...result, isBlocked:false}
+    }
+     throw{code:'Conflict', message:'Não foi possivel entender a requisicao'}
+        
+    
 }

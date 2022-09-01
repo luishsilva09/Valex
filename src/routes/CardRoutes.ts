@@ -2,19 +2,17 @@ import { Router } from 'express';
 import * as CardasController from '../controllers/cardController';
 import { validKey } from '../middlewares/validKey';
 import { schemaValidate } from '../middlewares/schemaValidateMiddleware';
-import createCardSchema from '../schemas/createCardSchema';
-import activeCardSchema from '../schemas/activeCardschema';
+import { cardSchemas } from '../schemas/cardSchemas';
 
 
 
 const CardRoutes = Router();
 
-CardRoutes.post('/create', schemaValidate(createCardSchema),validKey ,CardasController.insertCard)
-CardRoutes.post('/activeCard', schemaValidate(activeCardSchema),CardasController.activeCard)
+CardRoutes.post('/create', schemaValidate(cardSchemas.createCardSchema),validKey ,CardasController.insertCard)
+CardRoutes.post('/activeCard', schemaValidate(cardSchemas.activeCardSchema),CardasController.activeCard)
 CardRoutes.get('/viewCards',CardasController.viewCards)
 CardRoutes.get('/balanceTransactions',CardasController.viewBalenceTransactions)
-CardRoutes.patch('/blockedCard',CardasController.blockedCard)
-CardRoutes.patch('/unblockedCard',CardasController.unlockedCard)
+CardRoutes.patch('/blockedCard/:block',schemaValidate(cardSchemas.blockSchema),CardasController.blockedCard) // usar apenas true para bloquear e false para desbloquear
 
 
 export default CardRoutes;
