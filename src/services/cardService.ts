@@ -1,12 +1,12 @@
 import {findById as findEmployee} from "../repositories/employeeRepository";
-import { findByTypeAndEmployeeId,TransactionTypes,CardInsertData,insert as insertCard } from "../repositories/cardRepository";
+import * as cardRepository from "../repositories/cardRepository";
 import { faker } from '@faker-js/faker';
 import dayjs from 'dayjs';
 import Cryptr from 'cryptr';
 import dotenv from "dotenv";
 
 dotenv.config();
-const cryptr = new Cryptr(process.env.SECRET_KEY ?? '');
+const cryptr = new Cryptr((process.env.SECRET_KEY) ?? '');
 
 
 function holderName(fullName: string){
@@ -24,9 +24,9 @@ function holderName(fullName: string){
 }
 
 
-export default async function insertcard(cardData: { employeeId:number, password: string, type: TransactionTypes}){
+export async function insertcard(cardData: { employeeId:number, password: string, type: cardRepository.TransactionTypes}){
     const employeeData = await findEmployee(cardData.employeeId)
-    const existCard = await findByTypeAndEmployeeId(cardData.type,cardData.employeeId)
+    const existCard = await cardRepository.findByTypeAndEmployeeId(cardData.type,cardData.employeeId)
 //validar se o usuario existe e validar se já possui um cartão do mesmo tipo
     if(!employeeData) throw { code:'NotFound', message: 'Empregado nao encontrdo'}
     if(existCard) throw { code:'ExistCard', message:'Esse empregado já possui um cartao desse tipo'}
@@ -36,7 +36,7 @@ export default async function insertcard(cardData: { employeeId:number, password
     const cardNumber: string = faker.finance.creditCardNumber();
     const securityCode: string = (faker.finance.creditCardCVV())
   
-    const isertData: CardInsertData = {
+    const isertData: cardRepository.CardInsertData = {
         employeeId: cardData.employeeId,
         number: cardNumber,
         cardholderName: cardHolderName,
@@ -46,9 +46,24 @@ export default async function insertcard(cardData: { employeeId:number, password
         isBlocked:false,
         type:cardData.type
     }
-    await insertCard(isertData)
+    await cardRepository.insert(isertData)
     return {
         number: cardNumber,
         securityCode
     }
+}
+
+export  async function activeCard(cardData:{employeeId:number,cardId:number,securityCode:string}) {
+    const card = await cardRepository.findById(cardData.cardId);
+
+    if(!card)throw {code: 'NotFound', message:'Dados incorretos'};
+    if(card.employeeId != cardData.employeeId || !card) throw {code: 'NotFound', message:'Dados incorretos'};
+    if(card.password !== null) throw {code: 'ReadyActive', message:'Cartão já ativado'};
+    if(card.expirationDate === dayjs().format('MM/YY')) throw { code:'Conflict', message:'Cartão vencido, verifique os dados'};
+    const decryptSecurityCode = cryptr.decrypt(card.securityCode);
+   
+    if(cardData.securityCode != decryptSecurityCode) throw {code: 'Conflict', message:'Incoerencia dos dados'};
+
+    console.log(card)
+
 }
