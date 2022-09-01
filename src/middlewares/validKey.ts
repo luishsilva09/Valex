@@ -3,7 +3,7 @@ import { findByApiKey } from "../repositories/companyRepository";
 
 
 export async function validKey(req:Request,res:Response,next:NextFunction) {
-    const apiKey:string  = req.headers.key as string
+    const apiKey:string = String(req.headers['x-api-key'])
     const exist = await findByApiKey(apiKey) 
     if(exist) next();
     else throw {code: 'NotFound', message:'Chave invalida'}

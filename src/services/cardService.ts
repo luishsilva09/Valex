@@ -32,17 +32,23 @@ export default async function insertcard(cardData: { employeeId:number, password
     if(existCard) throw { code:'ExistCard', message:'Esse empregado já possui um cartao desse tipo'}
 
 //agrupando dados para inserir novo cartao
-    const cardHolderName:string = (holderName(employeeData.fullName))
+    const cardHolderName:string = (holderName(employeeData.fullName));
+    const cardNumber: string = faker.finance.creditCardNumber();
+    const securityCode: string = (faker.finance.creditCardCVV())
   
     const isertData: CardInsertData = {
         employeeId: cardData.employeeId,
-        number: faker.finance.creditCardNumber(),
+        number: cardNumber,
         cardholderName: cardHolderName,
-        securityCode: cryptr.encrypt(faker.finance.creditCardCVV()),
+        securityCode: cryptr.encrypt(securityCode) ,
         expirationDate:dayjs().add(5,'y').format('MM/YY'),
         isVirtual:false,
-        isBlocked:true,
+        isBlocked:false,
         type:cardData.type
     }
     await insertCard(isertData)
+    return {
+        number: cardNumber,
+        securityCode
+    }
 }
