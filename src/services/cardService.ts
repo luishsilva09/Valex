@@ -64,6 +64,13 @@ export  async function activeCard(cardData:{employeeId:number,cardId:number,secu
    
     if(cardData.securityCode != decryptSecurityCode) throw {code: 'Conflict', message:'Incoerencia dos dados'};
 
-    console.log(card)
+    const cardPin = faker.finance.pin()
+    const encryptPin = cryptr.encrypt(cardPin)
+    
+
+    await cardRepository.update(cardData.cardId,{password:encryptPin})
+    
+    return {cardNumber: card.number, password:cardPin}
+
 
 }

@@ -13,6 +13,22 @@ export async function insertCard(req:Request,res:Response){
 
 export async function activeCard(req:Request,res:Response) {
     const cardData:{employeeId:number,cardId:number,securityCode:string} = req.body
-    await cardService.activeCard(cardData)
-    res.status(200).send("Ativado")
+    const activeData = await cardService.activeCard(cardData)
+    res.status(200).send(`Cartão ativado com sucesso: Catão: ${activeData.cardNumber}, Senha: ${activeData.password}`)
+}
+
+export async function viewCards(req:Request,res:Response){
+    res.send('ver todos cartoes')
+}
+
+export async function viewBalenceTransactions(req:Request,res:Response){
+    res.send('ver todos ctransacoes')
+}
+
+export async function blockedCard(req:Request,res:Response){
+    res.send('bloquear')
+}
+
+export async function unlockedCard(req:Request,res:Response){
+    res.send('desbloquear')
 }
