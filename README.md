@@ -74,13 +74,10 @@ POST /createCard
 ```json
 
 {
-
+    "cardId": 1,
 	"number": "1111 1111 1111 1111",
-
 	"cardholderName": "NAME N NAME",
-
 	"securityCode": "111",
-
 	"expirationDate": "01/27",
 
 }

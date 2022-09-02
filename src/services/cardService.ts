@@ -29,8 +29,9 @@ function holderName(fullName: string){
 
 async function validCard(cardId:number,employeeId:number){
     const card = await cardRepository.findById(cardId);
-    await verifyExpirationDate(card.expirationDate)
+
     if(!card)throw {code: 'NotFound', message:'Dados incorretos'};
+    await verifyExpirationDate(card.expirationDate)
     if(card.employeeId != employeeId) throw {code: 'NotFound', message:'Dados incorretos'};
     
 
@@ -59,8 +60,9 @@ export async function insertcard(cardData: { employeeId:number, type: cardReposi
         isBlocked:false,
         type:cardData.type
     }
-    await cardRepository.insert(isertData)
+    const insertedId = await cardRepository.insert(isertData)
     return {
+        cardId:insertedId.id,
         number: cardNumber,
         cardHolderName: cardHolderName,
         securityCode,
