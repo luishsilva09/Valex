@@ -1,6 +1,5 @@
 import * as paymentRepository from '../repositories/paymentRepository'
 import * as businessRepository from '../repositories/businessRepository'
-import * as rechargeRepository from '../repositories/rechargeRepository'
 import { isBlock, verifyCard } from '../utils/verifyCard';
 import dotenv from "dotenv";
 import Cryptr from 'cryptr';

@@ -19,7 +19,9 @@ export async function activeCard(req:Request,res:Response) {
 
 
 export async function viewBalenceTransactions(req:Request,res:Response){
-    return res.send('ver todos ctransacoes')
+    const cardId:number = Number(req.params.cardId)
+    const result = await cardService.viewBalenceTransactions(cardId)
+    return res.status(200).json(result)
 }
 
 export async function blockedCard(req:Request,res:Response){

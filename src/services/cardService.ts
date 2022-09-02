@@ -1,10 +1,13 @@
 import {findById as findEmployee} from "../repositories/employeeRepository";
 import * as cardRepository from "../repositories/cardRepository";
+import * as paymentRepository from '../repositories/paymentRepository';
+import * as rechargeRepository from '../repositories/rechargeRepository';
 import { faker } from '@faker-js/faker';
 import dayjs from 'dayjs';
 import Cryptr from 'cryptr';
 import dotenv from "dotenv";
 import { verifyExpirationDate } from "../utils/verifyCard";
+import { getBalance } from "../utils/balanceUtils";
 
 dotenv.config();
 const cryptr = new Cryptr((process.env.SECRET_KEY) ?? '');
@@ -85,8 +88,19 @@ export  async function activeCard(cardData:{employeeId:number,cardId:number,secu
 
 }
 
-export async function viewBalenceTransactions(){
-
+export async function viewBalenceTransactions(cardId:number){
+    const card = await cardRepository.findById(cardId)
+    
+    if(!card)throw {code: 'NotFound', message:'Dados incorretos'};
+    const balance = await getBalance(cardId)
+    const transactions = await paymentRepository.findByCardId(cardId)
+    const recharges = await rechargeRepository.findByCardId(cardId)
+    const result = {
+        balance,
+        transactions,
+        recharges
+    }
+    return result
 }
 
 export async function blockedCard(cardData:{employeeId:number,cardId:number,cardPassword:string},block:string){
