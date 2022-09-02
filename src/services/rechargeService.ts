@@ -1,7 +1,12 @@
 import {verifyCard }from "../utils/verifyCard";
 import * as rechargeRepository from "../repositories/rechargeRepository"
 export async function recharge(cardId:number,amount:number){
-    await verifyCard(cardId)
+    const cardData = await verifyCard(cardId)
     await rechargeRepository.insert({cardId,amount})
-    console.log(cardId)
+    const result = {
+        cardNumber: cardData.number,
+        cardName: cardData.cardholderName,
+        rechargeAmount: amount
+    }
+    return result
 }

@@ -14,7 +14,7 @@ const activeCardSchema = joi.object({
 const blockSchema = joi.object({
     employeeId: joi.number().required(),
     cardId:joi.number().required(),
-    cardPassword:joi.string().trim().required()
+    cardPassword:joi.string().trim().regex(/[0-9]{4}/).required()
 })
 export  const cardSchemas = {
     createCardSchema,
