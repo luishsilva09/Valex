@@ -4,6 +4,7 @@ import * as rechargeRepository from '../repositories/rechargeRepository'
 import { isBlock, verifyCard } from '../utils/verifyCard';
 import dotenv from "dotenv";
 import Cryptr from 'cryptr';
+import { getBalance } from '../utils/balanceUtils';
 dotenv.config();
 const cryptr = new Cryptr((process.env.SECRET_KEY) ?? '');
 
@@ -20,12 +21,9 @@ export async function payment(paymentData:{cardId:number,cardPassword:string,amo
     if(validCardData.type !== businessExist.type) throw {code: 'Conflict', message:'Tipo não autorizado'};
     if(decryptPassword !== paymentData.cardPassword) throw { code:'Conflict', message:'Senha incorreta'};
 
-    let cardAmount:number = 0;
+    let cardBalance = await getBalance(paymentData.cardId);
 
-    (await rechargeRepository.findByCardId(paymentData.cardId)).forEach(x => cardAmount += x.amount);
-    (await paymentRepository.findByCardId(paymentData.cardId)).forEach(element => cardAmount -= element.amount)
-
-    if(cardAmount < paymentData.amount) throw { code:'Conflict', message: 'Saldo insuficiente'}
+    if(cardBalance < paymentData.amount) throw { code:'Conflict', message: 'Saldo insuficiente'}
 
     const result = {
         cardNumber:validCardData.number,
