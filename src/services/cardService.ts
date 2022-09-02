@@ -4,6 +4,7 @@ import { faker } from '@faker-js/faker';
 import dayjs from 'dayjs';
 import Cryptr from 'cryptr';
 import dotenv from "dotenv";
+import { verifyExpirationDate } from "../utils/verifyCard";
 
 dotenv.config();
 const cryptr = new Cryptr((process.env.SECRET_KEY) ?? '');
@@ -25,10 +26,10 @@ function holderName(fullName: string){
 
 async function validCard(cardId:number,employeeId:number){
     const card = await cardRepository.findById(cardId);
-
+    await verifyExpirationDate(card.expirationDate)
     if(!card)throw {code: 'NotFound', message:'Dados incorretos'};
     if(card.employeeId != employeeId) throw {code: 'NotFound', message:'Dados incorretos'};
-    if(card.expirationDate === dayjs().format('MM/YY')) throw { code:'Conflict', message:'Cartão vencido, verifique os dados'};
+    
 
     return card
 }
@@ -44,13 +45,13 @@ export async function insertcard(cardData: { employeeId:number, type: cardReposi
     const cardHolderName:string = (holderName(employeeData.fullName));
     const cardNumber: string = faker.finance.creditCardNumber();
     const securityCode: string = (faker.finance.creditCardCVV())
-  
+    const expirationDate: string = dayjs().add(5,'y').format('MM/YY');
     const isertData: cardRepository.CardInsertData = {
         employeeId: cardData.employeeId,
         number: cardNumber,
         cardholderName: cardHolderName,
         securityCode: cryptr.encrypt(securityCode) ,
-        expirationDate:dayjs().add(5,'y').format('MM/YY'),
+        expirationDate:expirationDate,
         isVirtual:false,
         isBlocked:false,
         type:cardData.type
@@ -58,7 +59,9 @@ export async function insertcard(cardData: { employeeId:number, type: cardReposi
     await cardRepository.insert(isertData)
     return {
         number: cardNumber,
-        securityCode
+        cardHolderName: cardHolderName,
+        securityCode,
+        expirationDate:expirationDate
     }
 }
 
@@ -80,15 +83,6 @@ export  async function activeCard(cardData:{employeeId:number,cardId:number,secu
     return {cardNumber: validCardData.number, password:cardPin}
 
 
-}
-
-export async function viewCards(searchData:{employeeId:number,passwords:string[]}){
-
-    const data = await cardRepository.findAllCardsEmployee(searchData.employeeId)
-    const passwords = data.filter(x => x.password)
-    
-
-    return passwords
 }
 
 export async function viewBalenceTransactions(){
