@@ -6,8 +6,8 @@ import { faker } from '@faker-js/faker';
 import dayjs from 'dayjs';
 import Cryptr from 'cryptr';
 import dotenv from "dotenv";
-import { verifyExpirationDate } from "../utils/verifyCard";
-import { getBalance } from "../utils/balanceUtils";
+import { verifyExpirationDate } from "./verifyCard";
+import { getBalance } from "./balance";
 
 dotenv.config();
 const cryptr = new Cryptr((process.env.SECRET_KEY) ?? '');

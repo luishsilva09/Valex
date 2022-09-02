@@ -1,9 +1,9 @@
 import * as paymentRepository from '../repositories/paymentRepository'
 import * as businessRepository from '../repositories/businessRepository'
-import { isBlock, verifyCard } from '../utils/verifyCard';
+import { isBlock, verifyCard } from './verifyCard';
 import dotenv from "dotenv";
 import Cryptr from 'cryptr';
-import { getBalance } from '../utils/balanceUtils';
+import { getBalance } from './balance';
 dotenv.config();
 const cryptr = new Cryptr((process.env.SECRET_KEY) ?? '');
 

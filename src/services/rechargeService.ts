@@ -1,4 +1,4 @@
-import {verifyCard }from "../utils/verifyCard";
+import {verifyCard }from "./verifyCard";
 import * as rechargeRepository from "../repositories/rechargeRepository"
 export async function recharge(cardId:number,amount:number){
     const cardData = await verifyCard(cardId)
